@@ -16,7 +16,9 @@ class Follower:
 
 #根据uid获取用户关注的用户列表
 def getFollowerList(uid):
-    pass
+    #url = 'http://weibo.cn/1669879400/follow?page=1'
+    url = 'http://weibo.cn/%s/follow?page=1' %uid
+
 
 # test method
 if __name__ == '__main__':
