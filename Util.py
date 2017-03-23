@@ -27,3 +27,23 @@ def readFileContent(fileName):
     file = open(fileName, 'r')
     return file.read()
     file.close()
+
+# 显示关注用户信息
+def printFollowerList(followerList):
+    for follower in followerList:
+        print follower.uid + '\t' + follower.nickName
+
+# 保存关注的用户到文件中
+def saveFollowers(followerList):
+    file = open('followers.txt','w')
+    index = 0
+    for follower in followerList:
+        try:
+            line = follower.nickName + '\t' + follower.uid + '\n'
+            if index % 10 == 0:
+                file.write('========================= 第 ' + str(index / 10 + 1) + ' 页 =========================\n')
+            file.write(line)
+            index += 1
+        except:
+            file.close()
+    file.close()

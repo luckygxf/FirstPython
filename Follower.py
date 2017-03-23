@@ -76,10 +76,10 @@ def getFollowersPageNum(uid):
     return pageNumNode.attrs.get('value')
 
 # test method
-if __name__ == '__main__':
-    uid = '1669879400'
-    # getFollowerList(uid)
-    followerList = getAllFollowersList(uid)
-    # Util.printFollowerList(followerList)
-    Util.saveFollowers(followerList)
-    # getFollowerListByPage(uid, 1)
+# if __name__ == '__main__':
+#     uid = '1669879400'
+#     # getFollowerList(uid)
+#     followerList = getAllFollowersList(uid)
+#     # Util.printFollowerList(followerList)
+#     Util.saveFollowers(followerList)
+#     # getFollowerListByPage(uid, 1)
