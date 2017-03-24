@@ -7,6 +7,7 @@
 import requests
 import sys
 import bs4
+import Util
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -89,11 +90,24 @@ def printUserInfo(userInfo):
     print userInfo.nickName + '\t' + userInfo.auth + '\t' + userInfo.sex + '\t' + userInfo.city + '\t' \
           + userInfo.birthday + '\t' + userInfo.authInfo + '\t' + userInfo.desc + '\n'
 
+# 从主页获取uid
+def getUidFromHomePage(homeUrl):
+    response = requests.get(homeUrl)
+    soup = bs4.BeautifulSoup(response.text, 'html.parser')
+    #soup = bs4.BeautifulSoup(Util.readFileContent('homepage.html'), 'html.parser')
+    #Util.saveFileContent('homepage.html', response.text)
+    userInfoUrl = soup.find_all("div", {'class' : 'u'})[0].table.tr.find_all('td')[1].find_all('a')[1].attrs.get('href')
+
+    return userInfoUrl.split('/')[1]
+
+
 # test method
 # uid = 1669879400
 if __name__ == '__main__':
     #getHmtl()
     # getCookiesFromTxtFile()
-    uid = '1669879400'
-    userInfo = getUserInfo(uid)
-    printUserInfo(userInfo)
+    # uid = '1669879400'
+    # userInfo = getUserInfo(uid)
+    # printUserInfo(userInfo)
+    homeUrl = 'http://weibo.cn/tangyan'
+    getUidFromHomePage(homeUrl)
