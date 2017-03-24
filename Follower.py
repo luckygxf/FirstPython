@@ -19,11 +19,11 @@ class Follower:
     def __init__(self, uid, nickName):
         self.uid = uid
         self.nickName = nickName
+    def __str__(self):
+        return self.nickName + '\t' + self.uid
 
 #根据uid获取用户关注的用户列表,分页查询
 def getFollowerListByPage(uid, pageNo):
-    #url = 'http://weibo.cn/1669879400/follow?page=1'
-
     url = 'http://weibo.cn/%s/follow?page=%d' %(uid, pageNo)
     cookies = Util.getCookiesFromTxtFile()
     response = requests.get(url, cookies = cookies)
@@ -37,11 +37,17 @@ def getFollowerListByPage(uid, pageNo):
             nickName = ''
             followerInfoNode = followerInfo.tr.find_all('td')[1]
             nickName = followerInfoNode.a.string
-            # http://weibo.cn/attention/add?uid=1662068793&rl=1&st=273106
-            href = followerInfoNode.find_all('a')[1].attrs.get('href')
-            start = href.find('=')
-            end = href.find('&')
-            uid = href[start + 1: end]
+            # http://weibo.cn/attention/add?uid=166206
+            # 8793&rl=1&st=273106
+            # 已关注的用户
+            if len(followerInfoNode.find_all('a')) == 1:
+                homeUrl = followerInfoNode.find_all('a')[0].attrs.get('href')
+                uid = UserInfo.getUidFromHomePage(homeUrl)
+            else:
+                href = followerInfoNode.find_all('a')[1].attrs.get('href')
+                start = href.find('=')
+                end = href.find('&')
+                uid = href[start + 1: end]
             follower = Follower(uid, nickName)
             followerList.append(follower)
         except BaseException,e:
@@ -78,8 +84,5 @@ def getFollowersPageNum(uid):
 # test method
 if __name__ == '__main__':
     uid = '1669879400'
-    # getFollowerList(uid)
     followerList = getAllFollowersList(uid)
-    # Util.printFollowerList(followerList)
     Util.saveFollowers(followerList)
-    # getFollowerListByPage(uid, 1)
