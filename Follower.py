@@ -81,6 +81,9 @@ def getFollowersPageNum(uid):
 
     return pageNumNode.attrs.get('value')
 
+
+
+
 # test method
 if __name__ == '__main__':
     uid = '1669879400'

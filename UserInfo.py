@@ -8,21 +8,13 @@ import requests
 import sys
 import bs4
 import Util
+from sql import UserInfoDb
+from Entities import UserInfoEntity
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-# 定义用户信息
-class UserInfo:
-    def __init__(self, uid = '', nickName = '', auth = '', sex = '', city = '', birthday = '', authInfo = '', desc = ''):
-        self.uid = uid
-        self.nickName = nickName
-        self.auth = auth
-        self.sex = sex
-        self.city = city
-        self.birthday = birthday
-        self.authInfo = authInfo
-        self.desc = desc
+
 
 '''
 1.先爬取好友列表
@@ -36,8 +28,6 @@ def getHmtl(url):
     cookies = getCookiesFromTxtFile()
     #url = 'http://weibo.cn/1669879400/follow'
     response = requests.get(url, cookies=cookies)
-    #saveContent(response.text)
-    #print response.text
     return response.text
 
 # 获取个人信息
@@ -53,19 +43,41 @@ def getUserInfo(uid):
     authInfo = ''
     desc = ''
     soup = bs4.BeautifulSoup(htmlText, 'html.parser')
-    div_class_c_list = soup.find_all('div', {'class' : 'c'})
-    basicInfoNode =  div_class_c_list[2]
+    # div_class_c_list = soup.find_all('div', {'class' : 'c'})
+    div_class_c_list = soup.find_all('div', {'class' : 'tip'})
+    basicInfoNode =  div_class_c_list[0].next_sibling
     basicInfoContents = basicInfoNode.contents
     basicInfoContents = basicInfoContents[0::2]
-    nickName = basicInfoContents[0]
-    auth = basicInfoContents[1]
-    sex = basicInfoContents[2]
-    city = basicInfoContents[3]
-    birthday = basicInfoContents[4]
-    authInfo = basicInfoContents[5]
-    desc = basicInfoContents[6]
-    userInfo = UserInfo(uid, nickName, auth, sex, city, birthday, authInfo, desc)
+    userInfo = {}
+    for keyValue in basicInfoContents:
+        try:
+            key = keyValue.split(':')[0]
+            value = keyValue.split(':')[1]
+            userInfo[key] = value
+        except Exception, e:
+            # weibo使用中文冒号
+            key = keyValue.split('：')[0]
+            value = keyValue.split('：')[1]
 
+    # index = 0
+    # # 有些没有认证信息
+    # nickName = basicInfoContents[index].split(':')[1]
+    # index += 1
+    # # 有认证信息的
+    # if('认证' == basicInfoContents[index].split(':')[1]):
+    #     auth = basicInfoContents[index].split(':')[1]
+    #     index += 1
+    # sex = basicInfoContents[index].split(':')[1]
+    # index += 1
+    # city = basicInfoContents[index].split(':')[1]
+    # index += 1
+    # birthday = basicInfoContents[index].split(':')[1]
+    # index += 1
+    # if ('认证信息' == basicInfoContents[index].split(':')[1]):
+    #     authInfo = basicInfoContents[index].split('：')[1]
+    #     index += 1
+    # desc = basicInfoContents[index].split(':')[1].strip()
+    # userInfo = UserInfoEntity.UserInfo(uid=uid, nickName=nickName, auth=auth, sex=sex, city=city, birthday=birthday, authInfo=authInfo, desc=desc)
     return userInfo
 
 # get Cookie
@@ -106,8 +118,12 @@ def getUidFromHomePage(homeUrl):
 if __name__ == '__main__':
     #getHmtl()
     # getCookiesFromTxtFile()
-    # uid = '1669879400'
-    # userInfo = getUserInfo(uid)
-    # printUserInfo(userInfo)
-    homeUrl = 'http://weibo.cn/tangyan'
-    getUidFromHomePage(homeUrl)
+    uid = '1669879400'
+    userInfo = getUserInfo(uid)
+    for key in userInfo.keys():
+        print key, userInfo[key]
+    # userInfoDb = UserInfoDb.UserInfoDb()
+    # userInfoDb.insertUserInfo(userInfo)
+    # # printUserInfo(userInfo)
+    # homeUrl = 'http://weibo.cn/tangyan'
+    # getUidFromHomePage(homeUrl)

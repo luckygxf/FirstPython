@@ -1,1 +1,1 @@
-__all__ = ['BaseDb', 'DbProperties', 'FollowerDb']
+__all__ = ['BaseDb', 'DbProperties', 'FollowerDb' ,'UserInfoDb']
