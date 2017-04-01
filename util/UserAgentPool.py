@@ -46,7 +46,7 @@ def getRandomUserAgent():
     length  = len(userAgentList)
     randomNum = Util.getRandomNum(0, length - 1)
     userAgent = userAgentList[randomNum]
-
+    print 'userAgent = %s' %userAgent
     return userAgent
 
 # test method

@@ -61,8 +61,12 @@ def getUserInfo(uid):
             userInfo[key] = value
         except Exception, e:
             # weibo使用中文冒号
-            key = keyValue.split('：')[0]
-            value = keyValue.split('：')[1]
+            try:
+                key = keyValue.split('：')[0]
+                value = keyValue.split('：')[1]
+            except BaseException,e:
+                print key
+                print value
 
     # index = 0
     # # 有些没有认证信息
