@@ -8,6 +8,7 @@ import Util
 import traceback
 from Entities import FollowerEntity
 from sql import FollowerDb
+from util import UserAgentPool
 
 reload(sys)
 sys.setdefualtencoding='utf-8'
@@ -18,7 +19,9 @@ sys.setdefualtencoding='utf-8'
 def getFollowerListByPage(uid, pageNo):
     url = 'http://weibo.cn/%s/follow?page=%d' %(uid, pageNo)
     cookies = Util.getCookiesFromTxtFile()
-    response = requests.get(url, cookies = cookies)
+    userAgent = UserAgentPool.getRandomUserAgent()
+    headers = {"user-agent" : userAgent}
+    response = requests.get(url, cookies = cookies, headers=headers)
     #Util.saveFileContent('index.html', response.text)
     soup = bs4.BeautifulSoup(response.text, 'html.parser')
     followerInfoList = soup.find_all('table')
@@ -69,7 +72,9 @@ def getFollowersPageNum(uid):
     try:
         url = 'http://weibo.cn/%s/follow' % uid
         cookies = Util.getCookiesFromTxtFile()
-        response = requests.get(url, cookies=cookies)
+        userAgent = UserAgentPool.getRandomUserAgent()
+        headers = {"user-agent" : userAgent}
+        response = requests.get(url, cookies=cookies, headers=headers)
         soup = bs4.BeautifulSoup(response.text, 'html.parser')
         # soup = bs4.BeautifulSoup(Util.readFileContent('test.html'), 'html.parser')
         pageNumNode = soup.find('input', {"name" : "mp"})
