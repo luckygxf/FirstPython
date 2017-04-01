@@ -10,6 +10,8 @@ import bs4
 import Util
 from sql import UserInfoDb
 from Entities import UserInfoEntity
+from util import CookiePool
+from util import UserAgentPool
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -27,7 +29,10 @@ sys.setdefaultencoding('utf-8')
 def getHmtl(url):
     cookies = getCookiesFromTxtFile()
     #url = 'http://weibo.cn/1669879400/follow'
-    response = requests.get(url, cookies=cookies)
+    cookie = CookiePool.getRandomCookie()
+    userAgent = UserAgentPool.getRandomUserAgent()
+    headers = {"user-agent" : userAgent}
+    response = requests.get(url, cookies=cookies, headers=headers)
     return response.text
 
 # 获取个人信息

@@ -1,6 +1,8 @@
 # encoding=utf-8
 # 定义工具类
 import sys
+import time
+import  random
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -47,3 +49,19 @@ def saveFollowers(followerList):
         except:
             file.close()
     file.close()
+
+# 获取一个随机数
+# [start, end] 闭区间
+def getRandomNum(start, end):
+    # 获取当前系统时间ms,作为seed,产生随机数,返回
+    currentTime = int(round(time.time() * 1000))
+    random.seed(currentTime)
+    [start, end]
+    randomNum = random.randint(start, end)
+
+    return randomNum
+
+
+# test method
+if __name__ == '__main__':
+    getRandomNum(0, 10)
