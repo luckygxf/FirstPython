@@ -12,6 +12,7 @@ from sql import UserInfoDb
 from Entities import UserInfoEntity
 from util import CookiePool
 from util import UserAgentPool
+from redisOp import UserInfoRedis
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -33,27 +34,32 @@ def getHmtl(url):
     userAgent = UserAgentPool.getRandomUserAgent()
     headers = {"user-agent" : userAgent}
     response = requests.get(url, cookies=cookies, headers=headers)
+
+    # 返回码不是200
+    if response.status_code != 200:
+        print 'url = %s response code = %d' %(url, response.status_code)
+        return ''
     return response.text
 
 # 获取个人信息
 def getUserInfo(uid):
     url = 'http://weibo.cn/%s/info' %uid
     htmlText = getHmtl(url)
-    # htmlText = open('index.html', 'r').read()
-    nickName = ''
-    auth = ''
-    sex = ''
-    city = ''
-    birthday = ''
-    authInfo = ''
-    desc = ''
+    # 没有获取到内容
+    if htmlText == '':
+        return
     soup = bs4.BeautifulSoup(htmlText, 'html.parser')
-    # div_class_c_list = soup.find_all('div', {'class' : 'c'})
     div_class_c_list = soup.find_all('div', {'class' : 'tip'})
-    basicInfoNode =  div_class_c_list[0].next_sibling
+    try:
+        basicInfoNode = div_class_c_list[0].next_sibling
+    except BaseException, e:
+        print e
+        print 'getUserInfo() url = %s' %url
+
     basicInfoContents = basicInfoNode.contents
     basicInfoContents = basicInfoContents[0::2]
     userInfo = {}
+    userInfo['uid'] = uid
     for keyValue in basicInfoContents:
         try:
             key = keyValue.split(':')[0]
@@ -64,29 +70,11 @@ def getUserInfo(uid):
             try:
                 key = keyValue.split('：')[0]
                 value = keyValue.split('：')[1]
+                userInfo[key] = value
             except BaseException,e:
-                print key
-                print value
-
-    # index = 0
-    # # 有些没有认证信息
-    # nickName = basicInfoContents[index].split(':')[1]
-    # index += 1
-    # # 有认证信息的
-    # if('认证' == basicInfoContents[index].split(':')[1]):
-    #     auth = basicInfoContents[index].split(':')[1]
-    #     index += 1
-    # sex = basicInfoContents[index].split(':')[1]
-    # index += 1
-    # city = basicInfoContents[index].split(':')[1]
-    # index += 1
-    # birthday = basicInfoContents[index].split(':')[1]
-    # index += 1
-    # if ('认证信息' == basicInfoContents[index].split(':')[1]):
-    #     authInfo = basicInfoContents[index].split('：')[1]
-    #     index += 1
-    # desc = basicInfoContents[index].split(':')[1].strip()
-    # userInfo = UserInfoEntity.UserInfo(uid=uid, nickName=nickName, auth=auth, sex=sex, city=city, birthday=birthday, authInfo=authInfo, desc=desc)
+                if key != '':
+                    print 'key = %s' %key
+                    print 'value = %s' %value
     return userInfo
 
 # get Cookie
@@ -121,18 +109,21 @@ def getUidFromHomePage(homeUrl):
 
     return userInfoUrl.split('/')[1]
 
+# 保存微博用户信息到redis
+# userinfo 使用python 字典保存
+def saveUserinfoToRedis(userInfo):
+    uid = userInfo['uid']
+    print 'save uid = %s to redis'%uid
+    #遍历字典userInfo
+    for (key, value) in userInfo.items():
+        UserInfoRedis.hset(uid, key, value)
+
 
 # test method
 # uid = 1669879400
 if __name__ == '__main__':
-    #getHmtl()
-    # getCookiesFromTxtFile()
-    uid = '1669879400'
-    userInfo = getUserInfo(uid)
-    for key in userInfo.keys():
-        print key, userInfo[key]
-    # userInfoDb = UserInfoDb.UserInfoDb()
-    # userInfoDb.insertUserInfo(userInfo)
-    # # printUserInfo(userInfo)
-    # homeUrl = 'http://weibo.cn/tangyan'
-    # getUidFromHomePage(homeUrl)
+    userInfo = {}
+    userInfo['uid'] = 4
+    userInfo['nickname'] = 'zhangsan'
+    userInfo['cigy'] = 'beijing'
+    saveUserinfoToRedis(userInfo)

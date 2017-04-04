@@ -21,8 +21,8 @@ def getData():
     print data
 
 # 插入数据
-def insertData(follower):
-    sql = 'insert into follower(uid, nickname) values (\'%s\', \'%s\')' %(follower.uid, follower.nickName)
+def insertData(uid, follower):
+    sql = 'insert into follower(uid, followerid, nickname) values (\'%s\', \'%s\', \'%s\')' %(uid, follower.uid, follower.nickName)
 
     try:
         db, cursor = dbHelper.getCursorAndDb()
@@ -35,10 +35,10 @@ def insertData(follower):
     db.close()
 
 # 保存列表数据到数据库
-def inserList(listOfFollowers):
+def inserList(uid,listOfFollowers):
     print 'save %d follower to database' % len(listOfFollowers)
     for follower in listOfFollowers:
-        insertData(follower)
+        insertData(uid, follower)
 
 
 # 查询uid是否已经在数据库中了

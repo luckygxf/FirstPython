@@ -7,12 +7,10 @@ import bs4
 import Util
 import traceback
 from Entities import FollowerEntity
-from sql import FollowerDb
 from util import UserAgentPool
 
 reload(sys)
 sys.setdefualtencoding='utf-8'
-
 
 
 #根据uid获取用户关注的用户列表,分页查询
@@ -71,6 +69,7 @@ def getAllFollowersList(uid):
 def getFollowersPageNum(uid):
     try:
         url = 'http://weibo.cn/%s/follow' % uid
+        print 'uid home page url = %s\n' %url
         cookies = Util.getCookiesFromTxtFile()
         userAgent = UserAgentPool.getRandomUserAgent()
         headers = {"user-agent" : userAgent}
@@ -80,9 +79,11 @@ def getFollowersPageNum(uid):
         pageNumNode = soup.find('input', {"name" : "mp"})
         # Util.saveFileContent('test.html', response.text)
         print pageNumNode.attrs.get('value')
+    # 可能关注的人较少，没有分页，返回1
     except Exception,e :
         print url
         print e.message
+        return '1'
 
     return pageNumNode.attrs.get('value')
 
@@ -91,7 +92,6 @@ def getFollowersPageNum(uid):
 
 # test method
 if __name__ == '__main__':
-    uid = '1669879400'
-    followerList = getAllFollowersList(uid)
-    FollowerDb.inserList(followerList)
-    Util.saveFollowers(followerList)
+    uid = '6128896649'
+    no = getFollowersPageNum(uid)
+    print no

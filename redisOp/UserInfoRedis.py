@@ -6,7 +6,6 @@ sys.setdefaultencoding('utf-8')
 
 import redis
 from Entities import  UserInfoEntity
-import UserInfo
 
 r = redis.Redis(host='localhost', port=6379, db=0, charset='utf-8')
 
@@ -25,9 +24,22 @@ def saveUserInfo(userInfo):
         print userInfo[key].encode('utf-8', userInfo[key])
         setKeyAndValue(keyEnglish, userInfo[key].encode('utf-8', userInfo[key]))
 
+# 使用hash类型保存用户信息
+# ex: uid = 5905555624
+# user:5905555624 uid = 5905555624 nickName = 小北帅三代
+def hset(uid, key, value):
+    hashkey = "user:%s"%uid
+    r.hset(hashkey, key, value)
+
+# 获取hash对象
+def hgetAll(uid):
+    hashkey = "user:%s"%uid
+    result = r.hgetall(hashkey)
+    return result
 
 if __name__ == '__main__':
     # uid = '1669879400'
-    # userInfo = UserInfo.getUserInfo(uid)
-    # saveUserInfo(userInfo)
-    setKeyAndValue('name', '官祥飞')
+    hset('2', "name", "guanxiangfei")
+    hset("2", "age", 27)
+    info = hgetAll(2)
+    print info

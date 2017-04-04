@@ -9,11 +9,9 @@ uid + nickname
 
 import sys
 import Follower
-import time
 import UserInfo
 from sql import FollowerDb
 from sql import UserInfoDb
-from redisOp import UserInfoRedis
 
 reload(sys)
 sys.setdefaultencoding='utf-8'
@@ -24,9 +22,9 @@ uidSeedUsedList = []
 '''DFS'''
 def startCrawlSimpleUserInfo(uid):
     followerList = Follower.getAllFollowersList(uid)
-    FollowerDb.inserList(followerList)
+    FollowerDb.inserList(uid, followerList)
+    getUserInfoSaveToRedis(followerList)
     while True:
-        # time.sleep(2)
         uid = getSeedUid(followerList)
         if uid == '':
             print 'find no uid seed stop program.'
@@ -34,9 +32,8 @@ def startCrawlSimpleUserInfo(uid):
         uidSeedUsedList.append(uid)
         print 'uid = %s' %uid
         followerList = Follower.getAllFollowersList(uid)
-        FollowerDb.inserList(followerList)
-        # getUserInfoAndSave(followerList)
-
+        FollowerDb.inserList(uid, followerList)
+        getUserInfoSaveToRedis(followerList)
 
 # 查询用户信息插入到数据库
 def getUserInfoAndSave(followerList):
@@ -45,6 +42,13 @@ def getUserInfoAndSave(followerList):
     for follower in followerList:
         userInfo = UserInfo.getUserInfo(follower.uid)
         userInfoDb.insertUserInfo(userInfo)
+
+# 查询用户信息保存到redis中
+def getUserInfoSaveToRedis(followerList):
+    for follower in followerList:
+        userInfo = UserInfo.getUserInfo(follower.uid)
+        if userInfo:
+            UserInfo.saveUserinfoToRedis(userInfo)
 
 # 获取一个种子uid
 # 从uidList中选一个出来
@@ -75,8 +79,5 @@ def getSeedUid(followerList):
 '''种子 uid = 1669879400'''
 if __name__ == '__main__':
     uid = '2804085361'
-    # userInfo = UserInfo.getUserInfo(uid)
-    # userInfoDb = UserInfoDb.UserInfoDb()
-    # userInfoDb.insertUserInfo(userInfo)
     uidSeedUsedList.append(uid)
     startCrawlSimpleUserInfo(uid)
