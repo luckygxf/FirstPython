@@ -78,6 +78,6 @@ def getSeedUid(followerList):
 
 '''种子 uid = 1669879400'''
 if __name__ == '__main__':
-    uid = '2804085361'
+    uid = '5357651574'
     uidSeedUsedList.append(uid)
     startCrawlSimpleUserInfo(uid)

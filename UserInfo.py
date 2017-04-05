@@ -122,8 +122,6 @@ def saveUserinfoToRedis(userInfo):
 # test method
 # uid = 1669879400
 if __name__ == '__main__':
-    userInfo = {}
-    userInfo['uid'] = 4
-    userInfo['nickname'] = 'zhangsan'
-    userInfo['cigy'] = 'beijing'
-    saveUserinfoToRedis(userInfo)
+    uid = '5357651574'
+    userInfo  = getUserInfo(uid)
+    print userInfo
